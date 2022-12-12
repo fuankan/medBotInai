@@ -1,8 +1,10 @@
+import requests
+import json
 from aiogram import Bot, executor, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from decouple import config
 
-TOKEN = config("TOKEN")
+TOKEN = '5755658521:AAFh1CTOBb7VtuzeARSLoXb-BcG9V_UZ270'
 bot = Bot(TOKEN)
 dp = Dispatcher(bot=bot)
 
@@ -11,6 +13,22 @@ dp = Dispatcher(bot=bot)
 async def hello(message: types.Message):
     await bot.send_message(message.chat.id, f'Hello : {message.from_user.full_name}')
 
+
+@dp.message_handler(commands=['parser'])
+async def memes_parser(message: types.Message):
+    rsp = requests.get("https://api.imgflip.com/get_memes")
+    data = json.JSONDecoder().decode(rsp.text)['data']['memes']
+
+    for meme in data[:10]:
+        await bot.send_photo(
+            message.chat.id,
+            meme['url'],
+        )
+
+        await bot.send_message(
+            message.chat.id,
+            meme['name']
+        )
 
 # 1
 @dp.message_handler(commands=['games'])
